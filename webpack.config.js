@@ -4,6 +4,9 @@ const htmlWebpackPlugin = new HtmlWebpackPlugin({
     template: path.join(__dirname, './src/index.html'),
     filename: './index.html'
 })
+function resolve(dir){
+    return path.join(__dirname,dir)
+}
 module.exports = {
     entry: path.join(__dirname, './src/index.js'),
     output: {
@@ -11,17 +14,24 @@ module.exports = {
         filename: 'bundle.[hash].js'
     },
     module: {
-        rules: [
-            {
+        rules: [{
                 test: /\.(js|jsx)$/,
                 use: 'babel-loader',
                 exclude: /node_modules/
+            },
+            {
+                test: /\.less$/,
+                use: ["style-loader", "css-loader", "less-loader"]
             }
         ]
     },
     plugins: [htmlWebpackPlugin],
     resolve: {
-        extensions: [".js", ".jsx"]
+        extensions: [".js", ".jsx"],
+        alias: {
+            '@': resolve('src'),
+            'components': resolve('src/components')
+        }
     },
     devServer: {
         port: 3001

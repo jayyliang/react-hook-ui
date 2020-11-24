@@ -1,12 +1,31 @@
-// import React from 'react'
 import './index.less'
 import '@/style/index.less'
 import svg from './svg'
 import uuid from '@/utils/uuid'
 import validateType from '@/utils/validateType'
 
-function initDom(msg, icon, duration = 2000) {
+function initToast(msg, icon, duration = 2000) {
+    if (Toast.curId) {
+        clearTimeout(Toast.timeoutId)
+        Toast.timeoutId = setTimeout(() => {
+            clear(Toast.instance)
+            Toast.curId = null
+        }, duration);
+    } else {
+        const toast = initDom(msg, icon)
+        document.body.appendChild(toast)
+        Toast.instance = toast
+        Toast.timeoutId = setTimeout(() => {
+            clear(toast)
+            Toast.curId = null
+        }, duration);
+    }
+}
+
+
+function initDom(msg, icon) {
     const id = uuid()
+    Toast.curId = id
     const div = `
         <div class="toast fade-in" id=${id}>
             ${icon ? `<div class="toast-icon">${svg[icon]}</div>` : ''}
@@ -15,17 +34,16 @@ function initDom(msg, icon, duration = 2000) {
     `
     let toast = document.createElement('div')
     toast.innerHTML = div
-    document.body.appendChild(toast)
-    Toast.clear(toast, id, duration)
+    Toast.instance = toast
+    return toast
 }
-
 
 function Toast(obj) {
     const type = validateType(obj)
     if (type == 'String') {
-        initDom(obj, false)
+        initToast(obj, false)
     } else if (type == 'Object') {
-        initDom(obj.text, obj.icon, obj.duration)
+        initToast(obj.text, obj.icon, obj.duration)
     } else {
         throw new Error("argument should be String or Object")
     }
@@ -37,13 +55,13 @@ Toast.defaultOptions = {
     duration: 2000
 }
 
-Toast.clear = function (toast, id, duration) {
-    setTimeout(() => {
-        document.querySelector('#' + id).className += ' fade-out'
-    }, duration);
+function clear(toast) {
+    document.querySelector('#' + Toast.curId).className += ' fade-out'
     setTimeout(() => {
         document.body.removeChild(toast)
-    }, duration + 500);
+        Toast.curId = null
+        Toast.instance = null
+    }, 500);
 }
 
 /**
@@ -51,11 +69,13 @@ Toast.clear = function (toast, id, duration) {
  * @param {any} obj
  * @description 加载提示
  */
-Toast.loading = function (msg) {
-    Toast({
-        icon: 'loading',
-        text: msg || '加载中'
-    })
+Toast.showLoading = function (msg = '加载中') {
+    const toast = initDom(msg, 'loading')
+    document.body.appendChild(toast)
+}
+
+Toast.hideLoading = function () {
+    clear(Toast.instance)
 }
 
 /**

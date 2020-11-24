@@ -6,7 +6,6 @@ import PROPS from './props'
 import removeClass from '@/utils/removeClass'
 function Checkbox(props) {
     const newProps = validateProps(props, PROPS)
-    console.log(newProps);
     const [checked, setChecked] = useState(newProps.checked);
     const { size, label } = newProps
     const iconRef = useRef()
@@ -21,7 +20,6 @@ function Checkbox(props) {
         </div>
     )
     function change(checked) {
-        console.log(checked);
         if (!iconRef.current.className) iconRef.current.className = ''
         if (!checked) {
             iconRef.current.className += ' fade-in'

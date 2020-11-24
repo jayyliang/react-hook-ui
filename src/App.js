@@ -18,7 +18,11 @@ function App() {
             <Cell icon="alert" title="砂碎石" value="请问" isLink="right" />
             <Cell icon="alert" title="砂碎石" value="请问" isLink="right" />
             <Button onClick={() => setActive(true)}>展示弹出层</Button>
-            <Popup active={useActive} closePopup={() => setActive(false)}>
+            <Popup
+                active={useActive}
+                closePopup={() => setActive(false)}
+                position="bottom"
+            >
                 <Button type="info">内容</Button>
             </Popup>
         </div>

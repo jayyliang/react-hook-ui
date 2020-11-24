@@ -9,7 +9,7 @@ function validateProps(props, PROPS) {
     const {
         _defaultNeed
     } = PROPS
-    _defaultNeed.forEach(item => {
+    _defaultNeed && _defaultNeed.forEach(item => {
         if (!newProps[item]) {
             newProps[item] = PROPS[item].default
         }

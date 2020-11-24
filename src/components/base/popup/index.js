@@ -1,14 +1,24 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import './index.less'
+import PROPS from './props.js'
+import validateProps from '@/utils/validate'
 function Popup(props) {
+    let popup = useRef(), children = useRef()
+    const newProps = validateProps(props, PROPS)
     useEffect(() => {
-        let popup = document.querySelector('.popup')
-        popup.style.display = 'none'
+        popup.current.style.display = 'none'
     }, []);
     useEffect(() => {
         if (props.active) {
-            let popup = document.querySelector('.popup')
-            popup.style.display = ''
+            popup.current.style.display = ''
+        } else {
+            const { position } = newProps
+            if (position == 'top' || position == 'bottom') {
+                children.current.style.height = 0
+            } else {
+                children.current.style.width = 0
+            }
+
         }
         return () => {
 
@@ -16,10 +26,32 @@ function Popup(props) {
     }, [props.active]);
 
     return (
-        <div onClick={(e) => clickMask(e, props)} className={`popup ${props.active ? 'fade-in' : 'fade-out'}`}>
-            <div className="children">{props.children}</div>
+        <div ref={popup} onClick={(e) => clickMask(e, props)} className={`popup ${props.active ? 'fade-in' : 'fade-out'}`}>
+            <div ref={children} className={`pop-children transition-height ${newProps.position} ${computeTransition(newProps, children)}`}>{props.children}</div>
         </div>
     )
+
+    function computeTransition(props, children) {
+        let classStr = ''
+        const { active, position } = props
+        if (active) {
+            classStr += `transition-in-${position}`
+            let cur = children.current
+            setTimeout(() => {
+                if (position != 'mid') {
+                    if (position == 'left' || position == 'right') {
+                        cur.style.width = props.width ? props.width : PROPS.width.default
+                    }
+                    if (position == 'top' || position == 'bottom') {
+                        cur.style.height = props.height ? props.height : PROPS.height.default
+                    }
+                }
+            }, 10);
+        } else {
+            classStr += `transition-out-${position}`
+        }
+        return classStr
+    }
 
     function clickMask(e, props) {
         e.persist()
@@ -31,7 +63,7 @@ function Popup(props) {
             }
             props.closePopup()
         } else {
-            console.log('nnn')
+            // console.log('nnn')
         }
     }
 }

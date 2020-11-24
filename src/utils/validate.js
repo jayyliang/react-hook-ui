@@ -1,6 +1,7 @@
+import validateType from './validateType'
 /**
- *@param props Array[{key:'',value:''}]
- *@param PROPS Array[{key:'',type:'',value:'',default:''}]
+ *@param props Object
+ *@param PROPS Object
  *@returns void
  */
 function validateProps(props, PROPS) {
@@ -43,14 +44,4 @@ function cloneProps(props) {
     return newProps
 }
 
-function validateType(obj) {
-    if (obj === void 0) {
-        return 'Undefined';
-    }
-    if (obj === null) {
-        return 'Null';
-    }
-    /function.(\w*)\(\)/.test(obj.constructor); //通过其构造函数来获取对应的类型。
-    return RegExp.$1;
-}
 export default validateProps

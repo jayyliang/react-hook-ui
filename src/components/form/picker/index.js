@@ -10,10 +10,6 @@ function Picker(props) {
     let startY//初始位置
         , lastY//上一次位置
 
-    //用于缓动的变量
-    let lastMoveTime = 0;
-    let lastMoveStart = 0;
-    let stopInertiaMove = false; // 是否停止缓动
     useEffect(() => {
         function stopScroll(e) {
             e.preventDefault()
@@ -22,6 +18,7 @@ function Picker(props) {
         return () => {
             pickerContainer.current.removeEventListener('wheel', stopScroll)
         };
+
     }, []);
     return (
         <div className="picker">
@@ -38,89 +35,43 @@ function Picker(props) {
                         <div>{title}</div>
                         <div onClick={confirm} className="confirm">确认</div>
                     </div>
-                    <ul ref={contentRef} className="content" style={{ transform: 'translateY(0)' }}>
-                        {renderList(columns)}
-                    </ul>
+                    <div className="content-container">
+                        <ul ref={contentRef} className="content" style={{ transform: 'translateY(0)' }}>
+                            {renderList(columns)}
+                        </ul>
+                    </div>
                 </div>
             </Popup>
         </div>
     )
     function touchStart(e) {
         e.persist()
-        lastY = startY = e.touches[0].pageY;
-
-        /**
-         * 缓动代码
-         */
-        lastMoveStart = lastY;
-        lastMoveTime = e.timeStamp || Date.now();
-        stopInertiaMove = true;
+        if (!startY) startY = e.touches[0].pageY
     }
     function touchMove(e) {
         e.persist()
-        let nowY = e.touches[0].pageY;
-        let moveY = nowY - lastY;
-        let content = contentRef.current
-        // console.log(content);
-        let reg = /\d+/ig
-        let contentTop = reg.exec(content.style.transform)[0];
-        // 设置top值移动content
-        let value = (parseInt(contentTop) + moveY);
-        console.log(value)
-        content.style.transform = `translateY(${value}px)`
-        lastY = nowY;
-
-        /**
-         * 缓动代码
-         */
-        let nowTime = e.timeStamp || Date.now();
-        stopInertiaMove = true;
-        if (nowTime - lastMoveTime > 300) {
-            lastMoveTime = nowTime;
-            lastMoveStart = nowY;
+        if (!lastY) {
+            lastY = e.touches[0].pageY
+        } else {
+            let nowY = e.touches[0].pageY
+            let moveY = nowY - lastY
+            setTranslate(moveY)
+            lastY = nowY
         }
     }
+
+    function setTranslate(moveY) {
+        let content = contentRef.current
+        let transform = content.style.transform
+        let left = transform.indexOf('('),right = transform.indexOf('p')
+        let translateY = Number(transform.slice(left + 1, right))
+        translateY = translateY + moveY
+        content.style.transform = `translateY(${translateY}px)`
+    }
+
     function touchEnd(e) {
         e.persist()
-        lastY = e.changedTouches[0].pageY;
-        return
-        // do touchend
-        let nowY = e.changedTouches[0].pageY;
-        let moveY = nowY - lastY;
-        let content = contentRef.current
-        let reg = /\d+/ig
-        let contentTop = reg.exec(content.style.transform)[0];
-        let value = (parseInt(contentTop) + moveY);
-        // console.log(value)
-        content.style.transform = `translateY(${value}px)`
-        lastY = nowY;
-
-        /**
-         * 缓动代码
-         */
-        let nowTime = e.timeStamp || Date.now();
-        let v = (nowY - lastMoveStart) / (nowTime - lastMoveTime); //最后一段时间手指划动速度
-        stopInertiaMove = false;
-        (function (v, startTime, value) {
-            let dir = v > 0 ? -1 : 1; //加速度方向
-            let deceleration = dir * 0.0006;
-            let duration = v / deceleration; // 速度消减至0所需时间
-            let dist = v * duration / 2; //最终移动多少
-            function inertiaMove() {
-                if (stopInertiaMove) return;
-                let nowTime = e.timeStamp || Date.now();
-                let t = nowTime - startTime;
-                let nowV = v + t * deceleration;
-                // 速度方向变化表示速度达到0了
-                if (dir * nowV < 0) {
-                    return;
-                }
-                let moveY = (v + nowV) / 2 * t;
-                content.style.transform = `translateY(${value + moveY}px)`
-                setTimeout(inertiaMove, 10);
-            }
-            inertiaMove();
-        })(v, nowTime, value);
+        lastY = null
     }
     function renderList(data) {
         return data.map((item, index) => {

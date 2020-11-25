@@ -24,5 +24,15 @@ export default {
         value: [true, false],
         default: false
     },
-    _defaultNeed: ['size', 'color', 'label', 'checked','round']
+    disabled: {
+        type: 'Boolean',
+        value: [true, false],
+        default: false
+    },
+    horizontal: {
+        type: 'Boolean',
+        value: [true, false],
+        default: false
+    },
+    _defaultNeed: ['size', 'color', 'label', 'round', 'disabled', 'horizontal']
 }

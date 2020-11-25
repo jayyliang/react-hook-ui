@@ -1,28 +1,21 @@
 @import '@/style/index.less';
 
-.checkbox {
+.check-item {
     display: flex;
     align-items: center;
-    // justify-content: left;
     cursor: pointer;
-    // border-radius: 50%;
 
     &-icon {
         display: flex;
         position: relative;
-        // border-color: rgb(7, 193, 96);
-        // background-color: rgb(7, 193, 96);
-        // border-radius: 50%;
         justify-content: center;
         margin-right: 10px;
     }
 
     .circle {
         border: 1px solid #c8c9cc;
-        // border-radius: 50%;
         box-sizing: border-box;
         position: absolute;
-        // margin-top: -50%;
     }
 
     .fade-to-background {
@@ -30,4 +23,9 @@
         transition: background .5s;
     }
 
+    .disabled {
+        cursor: not-allowed;
+        user-select: none;
+        color: #c8c9cc;
+    }
 }

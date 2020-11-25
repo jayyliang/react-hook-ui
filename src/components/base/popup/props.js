@@ -19,5 +19,5 @@ export default {
         value: null,
         default: '150px'
     },
-    _defaultNeed: ['position']
+    _defaultNeed: ['position','height','width']
 }

@@ -36,14 +36,13 @@ function Popup(props) {
         const { active, position } = props
         if (active) {
             classStr += `transition-in-${position}`
-            let cur = children.current
             setTimeout(() => {
                 if (position != 'mid') {
                     if (position == 'left' || position == 'right') {
-                        cur.style.width = props.width ? props.width : PROPS.width.default
+                        children.current.style.width = props.width ? props.width : PROPS.width.default
                     }
                     if (position == 'top' || position == 'bottom') {
-                        cur.style.height = props.height ? props.height : PROPS.height.default
+                        children.current.style.height = props.height ? props.height : PROPS.height.default
                     }
                 }
             }, 10);
@@ -56,12 +55,14 @@ function Popup(props) {
     function clickMask(e, props) {
         e.persist()
         if (e.target.className.includes('popup')) {
-            if (props.active) {
-                setTimeout(() => {
-                    e.target.style.display = 'none'
-                }, 500);
+            if (typeof props.closePopup == 'function') {
+                if (props.active) {
+                    setTimeout(() => {
+                        e.target.style.display = 'none'
+                    }, 500);
+                }
+                props.closePopup()
             }
-            props.closePopup()
         } else {
             // console.log('nnn')
         }

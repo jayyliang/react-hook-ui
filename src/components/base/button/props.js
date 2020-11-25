@@ -2,7 +2,7 @@ export default {
     type: {
         type: 'String',
         values: ['default', 'primary', 'info', 'warning', 'danger'],
-        default: 'default',
+        default: 'primary',
     },
     hairline: {
         type: 'Boolean',

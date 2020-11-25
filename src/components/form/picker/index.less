@@ -1,0 +1,80 @@
+.picker {
+
+    .picker-container {
+        position: relative;
+        background-color: #fff;
+        -webkit-user-select: none;
+        user-select: none;
+
+        .toolbar {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            height: 50px;
+        }
+
+        .button {
+            height: 100%;
+            padding: 0 16px;
+            font-size: 14px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            line-height: 50px
+        }
+
+        .cancel {
+            .button;
+            color: #969799;
+        }
+
+        .confirm {
+            .button;
+            color: #576b95;
+        }
+
+        .title {
+            max-width: 50%;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        .content {
+            height: 260px;
+            margin: 20px;
+            list-style: none;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+            // transform: translateY(0);
+
+            &::-webkit-scrollbar {
+                display: none
+            }
+
+            .list-item {
+                list-style: none;
+                text-align: center;
+                height: 40px;
+                line-height: 40px;
+                color: #bcbcbc;
+
+                &-cur {
+                    color: #333;
+                    border-top: 1px solid #bcbcbc;
+                    border-bottom: 1px solid #bcbcbc;
+                }
+            }
+        }
+    }
+
+
+}

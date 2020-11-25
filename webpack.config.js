@@ -30,7 +30,8 @@ module.exports = {
         extensions: [".js", ".jsx"],
         alias: {
             '@': resolve('src'),
-            'components': resolve('src/components')
+            'components': resolve('src/components'),
+            'test':resolve('src/componentsTest')
         }
     },
     devServer: {

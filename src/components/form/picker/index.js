@@ -1,98 +1,147 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, Fragment } from 'react'
 import Popup from 'components/base/popup'
 import './index.less'
-
+import PickerItem from './pickerItem'
+import validateType from '@/utils/validateType'
+/*
+https://www.cnblogs.com/ranzige/p/4193739.html
+https://www.jianshu.com/p/7159a7b3727e
+itemHeight:40px
+contentHeight:280px
+*/
 function Picker(props) {
-    const { title = '标题', showToolbar = true, columns = [], active = true, propsCur = 0 } = props
-    const [cur, setCur] = useState(propsCur);
-    const pickerContainer = useRef()
-    const contentRef = useRef()
-    let startY//初始位置
-        , lastY//上一次位置
-
+    const { title = '标题', showToolbar = true, columns = [], active = true, propsCur = 3 } = props
+    const [value, setValue] = useState([]);
+    const [curPath, setCurPath] = useState([]);
+    const [deep, setDeep] = useState(0)
     useEffect(() => {
-        function stopScroll(e) {
-            e.preventDefault()
-        }
-        pickerContainer.current.addEventListener('wheel', stopScroll)
+        initPathAndDeep()
         return () => {
-            pickerContainer.current.removeEventListener('wheel', stopScroll)
         };
 
     }, []);
     return (
         <div className="picker">
             <Popup position="bottom" active={active} closePopup={props.closePopup} height="350px">
-                <div
-                    onTouchStart={(e) => touchStart(e)}
-                    onTouchMove={(e) => touchMove(e)}
-                    onTouchEnd={(e) => touchEnd(e)}
-                    ref={pickerContainer}
-                    className="picker-container"
-                >
-                    <div hidden={!showToolbar} className="toolbar">
-                        <div onClick={cancel} className="cancel">取消</div>
-                        <div>{title}</div>
-                        <div onClick={confirm} className="confirm">确认</div>
-                    </div>
-                    <div className="content-container">
-                        <ul ref={contentRef} className="content" style={{ transform: 'translateY(0)' }}>
-                            {renderList(columns)}
-                        </ul>
-                    </div>
+                <div hidden={!showToolbar} className="toolbar">
+                    <div onClick={cancel} className="cancel">取消</div>
+                    <div>{title}</div>
+                    <div onClick={confirm} className="confirm">确认</div>
+                </div>
+                <div className="picker-wrap">
+                    {renderPickItem(columns, props)}
                 </div>
             </Popup>
         </div>
     )
-    function touchStart(e) {
-        e.persist()
-        if (!startY) startY = e.touches[0].pageY
+    function initPathAndDeep() {
+        let _deep = computedDeep(columns, 0)
+        setDeep(_deep)
+        let arr = []
+        for (let i = 0; i < _deep; i++) {
+            arr.push(0);
+        }
+        setCurPath(arr)
     }
-    function touchMove(e) {
-        e.persist()
-        if (!lastY) {
-            lastY = e.touches[0].pageY
-        } else {
-            let nowY = e.touches[0].pageY
-            let moveY = nowY - lastY
-            setTranslate(moveY)
-            lastY = nowY
+    function computedDeep(columns, deep) {
+        if (validateType(columns[0]) == 'Object') {
+            setDeep(deep + 1)
+            console.log(deep)
+            if (columns[0].children) {
+                return computedDeep(columns[0].children, deep + 1)
+            } else {
+                return deep
+            }
         }
     }
 
-    function setTranslate(moveY) {
-        let content = contentRef.current
-        let transform = content.style.transform
-        let left = transform.indexOf('('),right = transform.indexOf('p')
-        let translateY = Number(transform.slice(left + 1, right))
-        translateY = translateY + moveY
-        content.style.transform = `translateY(${translateY}px)`
-    }
+    function renderPickItem(columns, props) {
+        //一维选择器
 
-    function touchEnd(e) {
-        e.persist()
-        lastY = null
+        if (validateType(columns) != 'Array') {
+            throw new Error('columns should be array')
+        } else {
+            let checkItem = columns[0]
+            if (validateType(checkItem) == 'String') {
+
+                return (
+                    <PickerItem columns={columns}
+                        confirm={props.confirm}
+                        closePopup={props.closePopup}
+                        propsCur={props.defaultIndex} />
+                )
+            }
+            if (validateType(checkItem) == 'Object') {
+                if (checkItem.values) {
+                    return (
+                        <Fragment>
+                            {columns.map(item => {
+                                return (
+                                    <PickerItem columns={item.values} propsCur={item.defaultIndex} />
+                                )
+                            })}
+                        </Fragment>
+                    )
+                }
+                if (checkItem.children) {
+                    let children = [], level = 0
+                    getChildren(children, columns, level, '')
+                    return children.map((item, index) => {
+                        let showItem = []
+                        showItem = item.filter(item => {
+                            const path = item.path.split('')
+                            if (path[path.length - 1]) {
+                                let prevPath = path.slice(0, path.length - 1).join('')
+                                for (let i = 0; i < prevPath.length; i++) {
+                                    if (prevPath[i] != curPath[i]) {
+                                        return false
+                                    }
+                                }
+                                return true
+                            } else {
+                                //第一层
+                                return true
+                            }
+                        })
+                        return (
+                            <PickerItem setPath={(cur) => setPath(cur)} columns={showItem} propsCur={curPath[index] || 0} type="cascade" />
+                        )
+                    })
+                }
+            }
+        }
+        function getChildren(children, arr, level, path) {
+            Array.isArray(arr) && arr.forEach((item, index) => {
+                if (!children[level]) {
+                    children[level] = []
+                }
+                children[level].push({ text: item.text, path: path + index })
+                if (item.children) {
+                    getChildren(children, item.children, level + 1, path + index)
+                }
+            })
+        }
     }
-    function renderList(data) {
-        return data.map((item, index) => {
-            return (
-                <li
-                    onClick={() => clickItem(item, index)}
-                    className={`list-item ${cur == index ? 'list-item-cur' : ''}`} key={index}
-                    data-index={index}>
-                    {item}
-                </li>
-            )
-        })
+    function setPath(cur) {
+        let arr = cur.path.split('')
+        let pathLength = curPath.length
+        if (arr.length < pathLength) {
+            for (let index = 0; index < pathLength - arr.length; index++) {
+                arr.push(0)
+
+            }
+        }
+        setCurPath(arr)
     }
     function clickItem(item, index) {
         console.log(222);
     }
     function confirm() {
-
+        typeof props.confirm == 'function' ? props.confirm(cur) : null
+        cancel()
     }
     function cancel() {
-
+        typeof props.closePopup == 'function' ? props.closePopup() : null
     }
 }
 

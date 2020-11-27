@@ -10,8 +10,7 @@ itemHeight:40px
 contentHeight:280px
 */
 function Picker(props) {
-    const { title = '标题', showToolbar = true, columns = [], active = true, propsCur = 3 } = props
-    const [value, setValue] = useState([]);
+    const { title = '标题', showToolbar = true, columns = [], active = true } = props
     const [curPath, setCurPath] = useState([]);
     const [deep, setDeep] = useState(0)
     useEffect(() => {
@@ -35,7 +34,7 @@ function Picker(props) {
         </div>
     )
     function initPathAndDeep() {
-        let _deep = computedDeep(columns, 0)
+        let _deep = computedDeep(columns, 1)
         setDeep(_deep)
         let arr = []
         for (let i = 0; i < _deep; i++) {
@@ -46,7 +45,6 @@ function Picker(props) {
     function computedDeep(columns, deep) {
         if (validateType(columns[0]) == 'Object') {
             setDeep(deep + 1)
-            console.log(deep)
             if (columns[0].children) {
                 return computedDeep(columns[0].children, deep + 1)
             } else {
@@ -103,8 +101,13 @@ function Picker(props) {
                                 return true
                             }
                         })
+                        console.log(curPath[index]);
                         return (
-                            <PickerItem setPath={(cur) => setPath(cur)} columns={showItem} propsCur={curPath[index] || 0} type="cascade" />
+                            <PickerItem
+                                setPath={(cur) => setPath(cur)}
+                                columns={showItem}
+                                propsCur={curPath[index] || 0}
+                                type="cascade" />
                         )
                     })
                 }
@@ -124,13 +127,12 @@ function Picker(props) {
     }
     function setPath(cur) {
         let arr = cur.path.split('')
-        let pathLength = curPath.length
-        if (arr.length < pathLength) {
-            for (let index = 0; index < pathLength - arr.length; index++) {
+        if (arr.length < deep) {
+            for (let index = 0; index < deep - arr.length; index++) {
                 arr.push(0)
-
             }
         }
+        console.log(arr);
         setCurPath(arr)
     }
     function clickItem(item, index) {
@@ -145,4 +147,4 @@ function Picker(props) {
     }
 }
 
-export default React.memo(Picker)
+export default Picker

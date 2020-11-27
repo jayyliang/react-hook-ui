@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef, Fragment } from 'react'
 import './index.less'
 
 function PickerItem(props) {
-    const { title = '标题', showToolbar = true, columns = [], active = true, propsCur = 3 } = props
+    const { columns = [], propsCur = 0 } = props
     const [cur, setCur] = useState(propsCur);
     const [contentHeight, setContentHeight] = useState(columns.length * 40);
+    // console.log('contentHeight:',contentHeight);
     const [initTranslateY, setInitTranslateY] = useState(-propsCur * 40);
     const pickerContainer = useRef()
     const contentRef = useRef()
+    const [oldColumns, setOldColumns] = useState([])
+    const timer = useRef()
     let startY//初始位置
         , lastY
 
@@ -15,12 +18,24 @@ function PickerItem(props) {
         function stopScroll(e) {
             e.preventDefault()
         }
+        console.log(columns.length);
         pickerContainer.current.addEventListener('wheel', stopScroll)
         return () => {
             pickerContainer.current.removeEventListener('wheel', stopScroll)
         };
 
     }, []);
+    useEffect(() => {
+        setInitTranslateY(-propsCur * 40)
+        setCur(propsCur)
+        if (JSON.stringify(columns) != JSON.stringify(oldColumns)) {
+            setContentHeight(columns.length * 40)
+            setOldColumns(columns)
+        }
+        return () => {
+
+        };
+    }, [propsCur, columns]);
     return (
 
         <Fragment>
@@ -63,10 +78,11 @@ function PickerItem(props) {
         let left = transform.indexOf('('), right = transform.indexOf('p')
         let lastTranslateY = Number(transform.slice(left + 1, right))
         let translateY = lastTranslateY + moveY
-        if (translateY >= 0) {
+        // console.log(contentHeight);
+        if (translateY > 0) {
             translateY = 0
         }
-        if (translateY <= -(contentHeight - 40)) {
+        if (translateY < -(contentHeight - 40)) {
             translateY = -(contentHeight - 40)
         }
         //对40取整
@@ -74,15 +90,22 @@ function PickerItem(props) {
         content.style.transition = "all 1s ease-out"
         content.style.transform = `translateY(${translateY}px)`
         setItem(index)
-        setPath()
+        // setPath()
     }
 
-    function setPath(){
-        props.setPath && props.setPath(props.columns[cur])
+    function setPath() {
+        console.log(timer);
+        timer.current = setTimeout(() => {
+            if (timer.current) clearTimeout(timer.current)
+        }, 1000);
     }
 
     function setItem(index) {
         setCur(Math.abs(index))
+        if (timer.current) clearTimeout(timer.current)
+        timer.current = setTimeout(() => {
+            props.setPath && props.setPath(props.columns[cur])
+        }, 1000);
     }
 
     function touchEnd(e) {
@@ -112,4 +135,4 @@ function PickerItem(props) {
     }
 }
 
-export default React.memo(PickerItem)
+export default PickerItem

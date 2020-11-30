@@ -44,8 +44,14 @@ function Slider(props) {
             const width = getSliderWidth()
             const del = (x - lastX) / width * 100
             bar.current.style.transition = 'none 0s'
-            setValue(value + del >= 100 ? 100 : value + del)
+            setValue(computeValue(value + del))
         }
+    }
+    function computeValue(value) {
+        if (value >= 100) {
+            return 100
+        }
+        return Math.floor(value)
     }
     function getSliderWidth() {
         return px2num(window.getComputedStyle(slider.current).width)
@@ -54,13 +60,12 @@ function Slider(props) {
         const x = e.nativeEvent.offsetX
         const width = getSliderWidth()
         let value = x / width * 100
-        if (value >= 100) value = 100
-        setValue(value)
+        setValue(computeValue(value))
     }
     function computeStyle() {
 
         let style = {}
-        style.width = `${value}%`
+        style.width = `${computeValue(value)}%`
 
         return style
     }

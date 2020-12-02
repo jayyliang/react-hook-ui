@@ -48,7 +48,7 @@ export default function TestPicker() {
                 title="选择器"
                 active={active}
                 closePopup={() => setActive(false)}
-                columns={columns3}
+                columns={columns1}
             />
         </div>
     )

@@ -47,6 +47,8 @@ function PickerItem(props) {
                 className="picker-container"
             >
                 <div className="content-container">
+                    <div className="mask" style={{ backgroundSize: `100% ${initTranslateY + 110}px` }}></div>
+                    <div className="indicator" style={getIndicatorStyle()}></div>
                     <ul ref={contentRef} className="content" style={{ transform: `translateY(${initTranslateY}px)` }}>
                         {renderList(columns)}
                     </ul>
@@ -55,10 +57,16 @@ function PickerItem(props) {
 
         </Fragment>
     )
-
+    function getIndicatorStyle() {
+        let style = {}
+        style.top = initTranslateY + 110 + 'px'
+        return style
+    }
     function touchStart(e) {
         e.persist()
         if (!startY) startY = e.touches[0].pageY
+        let content = contentRef.current
+        content.style.transition = "all .3s linear"
     }
     function touchMove(e) {
         e.persist()
@@ -81,15 +89,14 @@ function PickerItem(props) {
         // console.log(contentHeight);
         if (translateY > 0) {
             translateY = 0
-        }
-        if (translateY < -(contentHeight - 40)) {
+        } else if (translateY < -(contentHeight - 40)) {
             translateY = -(contentHeight - 40)
+        } else {
+
         }
         //对40取整
-        let index = Math.ceil(translateY / 40)
-        content.style.transition = "all 1s ease-out"
         content.style.transform = `translateY(${translateY}px)`
-        setItem(index)
+
         // setPath()
     }
 
@@ -111,6 +118,28 @@ function PickerItem(props) {
     function touchEnd(e) {
         e.persist()
         lastY = null
+        let content = contentRef.current
+        // console.log(translateY / 40);
+        let transform = content.style.transform
+        let left = transform.indexOf('('), right = transform.indexOf('p')
+        let translateY = Number(transform.slice(left + 1, right))
+        let arr = String(translateY / 40).split('.')
+        let int = Number(arr[0]), decimal = Number('0.' + arr[1])
+        console.log(decimal);
+        if (decimal > 0.5) {
+            int -= 1
+        } else {
+        }
+        translateY = 40 * int
+        setTimeout(() => {
+            content.style.transition = ""
+        }, 300);
+        let index = Math.ceil(translateY / 40)
+        content.style.transform = `translateY(${translateY}px)`
+        setItem(index)
+        setTimeout(() => {
+            content.style.transition = ""
+        }, 300);
     }
     function renderList(data) {
         return data.map((item, index) => {

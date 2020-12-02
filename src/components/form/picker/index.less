@@ -54,6 +54,32 @@
         .content-container {
             overflow: hidden;
             position: relative;
+
+            .mask {
+                        position: absolute;
+        left: 0;
+        width: 100%;
+        z-index: 3;
+                   top: 0;
+                   height: 100%;
+                   margin: 0 auto;
+                   background-image: -webkit-linear-gradient(top, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6)),-webkit-linear-gradient(bottom, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6));
+                   background-image: -webkit-gradient(linear, left top, left bottom, from(hsla(0, 0%, 100%, .95)), to(hsla(0, 0%, 100%, .6))),-webkit-gradient(linear, left bottom, left top, from(hsla(0, 0%, 100%, .95)), to(hsla(0, 0%, 100%, .6)));
+                   background-image: linear-gradient(180deg, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6)),linear-gradient(0deg, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6));
+                   background-position: top,bottom;
+                   background-repeat: no-repeat;
+            }
+            .indicator{
+box-sizing: border-box;
+    height: 40px;
+    // top: 102px;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+        position: absolute;
+    left: 0;
+    width: 100%;
+    z-index: 3;
+            }
         }
 
         .content {
@@ -72,12 +98,12 @@
                 text-align: center;
                 height: 40px;
                 line-height: 40px;
-                color: #bcbcbc;
-
-                &-cur {
+                // color: #bcbcbc;
                     color: #333;
-                    border-top: 1px solid #bcbcbc;
-                    border-bottom: 1px solid #bcbcbc;
+                &-cur {
+
+                    // border-top: 1px solid #bcbcbc;
+                    // border-bottom: 1px solid #bcbcbc;
                 }
             }
         }

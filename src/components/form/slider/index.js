@@ -24,6 +24,9 @@ function Slider(props) {
             <div ref={bar} style={computeStyle(props)} className="bar">
                 <div onTouchMove={e => handleTouchMove(e)}
                     onTouchEnd={() => handleTouchEnd()}
+                    onTouchStart={() => {
+                        bar.current.style.transition = 'none 0s'
+                    }}
                     onClick={(e) => { e.stopPropagation() }}
                     className="button-wrapper">
                     <div className="button"></div>
@@ -43,7 +46,6 @@ function Slider(props) {
         } else {
             const width = getSliderWidth()
             const del = (x - lastX) / width * 100
-            bar.current.style.transition = 'none 0s'
             setValue(computeValue(value + del))
         }
     }

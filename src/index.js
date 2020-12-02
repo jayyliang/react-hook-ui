@@ -5,4 +5,4 @@ import App from './App'
 import TestPicker from 'test/TestPicker'
 import TestSlider from 'test/TestSlider'
 
-render(<TestSlider />, document.getElementById('root'))
+render(<TestPicker />, document.getElementById('root'))
